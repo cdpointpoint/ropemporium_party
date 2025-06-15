@@ -24,6 +24,12 @@ RUN locale-gen fr_FR.UTF-8
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# qemu post integration
+
+RUN mkdir /etc/qemu-binfmt
+RUN ln -s /usr/arm-linux-gnueabi /etc/qemu-binfmt/arm
+RUN ln -s /usr/mipsel-linux-gnu /etc/qemu-binfmt/mipsel
+
 # Build radare2
 # RUN git clone https://github.com/radareorg/radare2
 # RUN radare2/sys/install.sh
