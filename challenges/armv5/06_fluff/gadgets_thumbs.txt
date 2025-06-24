@@ -1,0 +1,12 @@
+0x000105fa (0x000105fb): b #0x93e; movs r0, r0; b #0x942; movs r0, r0; b #0x946; blx lr; 
+0x000105fe (0x000105ff): b #0x942; movs r0, r0; b #0x946; blx lr; 
+0x00010602 (0x00010603): b #0x946; blx lr; 
+0x00010604 (0x00010605): blx lr; 
+0x000103ec (0x000103ed): bx r0; 
+0x000103e2 (0x000103e3): ldr r5, [r4, #0x64]; ldrsh r4, [r4, r5]; lsls r7, r3, #1; str r7, [r3, #0x54]; str r6, [r5, #0x44]; bx r0; 
+0x000103e4 (0x000103e5): ldrsh r4, [r4, r5]; lsls r7, r3, #1; str r7, [r3, #0x54]; str r6, [r5, #0x44]; bx r0; 
+0x000103e6 (0x000103e7): lsls r7, r3, #1; str r7, [r3, #0x54]; str r6, [r5, #0x44]; bx r0; 
+0x000105fc (0x000105fd): movs r0, r0; b #0x942; movs r0, r0; b #0x946; blx lr; 
+0x00010600 (0x00010601): movs r0, r0; b #0x946; blx lr; 
+0x000103ea (0x000103eb): str r6, [r5, #0x44]; bx r0; 
+0x000103e8 (0x000103e9): str r7, [r3, #0x54]; str r6, [r5, #0x44]; bx r0;

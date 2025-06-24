@@ -1,0 +1,5 @@
+target remote 127.0.0.1:1337
+
+
+printf "%36sBBBBCCCC" A|qemu-arm -g 1337 split_armv5
+

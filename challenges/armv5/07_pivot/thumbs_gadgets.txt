@@ -1,0 +1,10 @@
+0x0001091e (0x0001091f): adds r3, r7, #0; bx r3; 
+0x00010916 (0x00010917): b #0x330; vrhadd.u16 d14, d14, d31; mov lr, r4; adds r3, r7, #0; bx r3; 
+0x0001091a (0x0001091b): b #0xb7c; mov lr, r4; adds r3, r7, #0; bx r3; 
+0x0001092e (0x0001092f): b #0xb90; blx lr; 
+0x00010930 (0x00010931): blx lr; 
+0x00010920 (0x00010921): bx r3; 
+0x0001091c (0x0001091d): mov lr, r4; adds r3, r7, #0; bx r3; 
+0x00010914 (0x00010915): movs r0, r1; b #0x330; vrhadd.u16 d14, d14, d31; mov lr, r4; adds r3, r7, #0; bx r3; 
+0x00010918 (0x00010919): vrhadd.u16 d14, d14, d31; mov lr, r4; adds r3, r7, #0; bx r3; 
+

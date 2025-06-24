@@ -4,8 +4,7 @@ from pwn import *
 import time
 import sys
 
-# Version qui retourne simplement sur unusefulFunction
-#
+# step2  : version with pivot then jump to usefulFunction 
 gs='''
 b *pwnme+180
 '''

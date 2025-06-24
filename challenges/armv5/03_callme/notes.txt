@@ -1,0 +1,1 @@
+qemu-armhf -L /usr/arm-linux-gnueabihf ./callme_armv5-hf

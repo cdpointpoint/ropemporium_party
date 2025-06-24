@@ -55,7 +55,7 @@ RUN pip install ropper
 # Install GEF and patch blue color adresses
 RUN wget -O /home/pts/.gdbinit-gef.py -q https://gef.blah.cat/py
 RUN echo "set style address foreground cyan" >/home/pts/.gdbinit
-RUN echo "set style disassembler immediate foreground cyan" >>/home/pts/.gdbinit
+RUN echo "set style disassembler immediate foreground white" >>/home/pts/.gdbinit
 RUN echo 'source ~/.gdbinit-gef.py' >> /home/pts/.gdbinit
 RUN echo 'theme registers_register_name cyan' >> /home/pts/.gdbinit
 

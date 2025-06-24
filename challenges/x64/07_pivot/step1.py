@@ -4,8 +4,9 @@ from pwn import *
 import time
 import sys
 
-# Version avec erreur sur l'usage de leave
-# on oublie d'enlever - 8 a la valeur qui ecrase SRBP
+# Version with mistake in leave usage
+# we pivote to directly to the leak message
+# the fist word is poped in rbp.
 
 # break at the end of pwnme
 gs='''

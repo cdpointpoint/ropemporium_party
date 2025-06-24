@@ -2,8 +2,9 @@
 Title: Ropemporium x86_64 write4
 Date: 2023-06-04
 Tags: [linux, python, ROP, x86_64, ropemporium]
-Categories: [write-up]
+Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # write4

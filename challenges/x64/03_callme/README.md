@@ -2,8 +2,9 @@
 Title: Ropemporium x86_64 callme
 Date: 2023-06-03
 Tags: [linux, python, ROP, x86_64, ropemporium]
-Categories: [write-up]
+Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # callme

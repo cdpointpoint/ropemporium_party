@@ -2,8 +2,9 @@
 Title: Ropemporium x86_64 fluff
 Date: 2023-06-06
 Tags: [linux, pwn, python, ROP, x86_64, ropemporium]
-Categories: [write-up]
+Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # fluff
@@ -58,7 +59,7 @@ The main function calls pwnme as imported function:
 └           0x00400616      c3             ret
 ```
 
-Looking at pwnme:
+Take a look at pwnme:
 ```sh
 ┌ 153: sym.pwnme ();
 │           ; var void *buf @ rbp-0x20
@@ -142,9 +143,9 @@ For edi we found a `pop rdi` gadget
 
 But no "pop rax".
 
-* `xlatb` : allows us to control al from rbx and current value of al.
+* The gadget `xlatb` : allows us to control al from rbx and current value of al.
 
-    XLATB (opcode D7): Set AL to the contents of DS:[RBX + unsigned AL].
+    *XLATB : Table Look-up Translation Byte : Set AL to the contents of DS:[RBX + unsigned AL].*
 
 `al` is loaded with le byte content of the address given by rbx+al.
 
@@ -169,26 +170,27 @@ After that, `al` takes the value of the last written character.
 But now we need to control `rbx`.
 
 
-* `bextr` : allows us to update rbx if we control rcx and rdx contents.
+* The third gadget use `bextr` : allows us to update rbx if we control rcx and rdx contents.
 
-BEXTR rdest, rsrc, rctrl Contiguous bitwise extract from r/m64 using rctrl as control; store result in r64a.
-
+    *BEXTR rdest, rsrc, rctrl Contiguous bitwise extract from r/m64 using rctrl as control; store result in r64a.
 rctrl set de start index and the length of the extraction from rsrc to rdest whith its two half parts.
-index(32)|size(32)
+index(32)|size(32)*
 
-Our gadget :
+(https://www.felixcloutier.com/x86/bextr)
+
+Our gadget do that :
 - load rdx  and rcx
 - add 0x3ef2 to rcx
 - bextr rbx, rcx, rdx
 
 Then to load rcx with an X value we can
 - set edx to 64 (index=0, size=64)
-- set ecx to X-0x3ef2 
+- set ecx to X-0x3ef2
 - apply the gadget
 
 *** Fun test ***
 
-To test and observe bextr 
+To test and observe bextr
 
 ```nasm
 ;  nasm -felf64 bextr.asm && ld -o bextr bextr.o
@@ -207,7 +209,7 @@ _start:   mov       rcx, 0x4847464544434241
           mov       rsi, rdi                ; buffer
           mov       rdi, 1                  ; stdout
           mov       rdx, 17                 ; size
-          syscall                           ; 
+          syscall                           ;
           mov       rax, 60                 ; system call for exit
           xor       rdi, rdi                ; exit code 0
           syscall                           ; invoke operating system to exit
@@ -220,10 +222,10 @@ buffer:   db        "               "       ; init white message (uggly)
 
 This little program extract 8 bits for bit 16 of "ABCDEFGH".
 
-        06_fluff$ ./bextr 
-        BC           
+        06_fluff$ ./bextr
+        BC
 
-Follow it in gdb 
+Follow it in gdb
 
 
 *** end of fun test ***

