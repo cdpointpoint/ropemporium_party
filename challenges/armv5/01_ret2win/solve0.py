@@ -15,8 +15,8 @@ c
 
 io = process([elf.path])
 if len(sys.argv)>1 and sys.argv[1] == "-d":
-    gdb.attach(io,gs)
-    #io = gdb.debug([elf.path],gdbscript=gs)
+    i#gdb.attach(io,gs)
+    io = gdb.debug([elf.path],gdbscript=gs)
     time.sleep(1)
 
 
