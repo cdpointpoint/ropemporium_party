@@ -4,6 +4,7 @@ Date: 2023-06-01
 Tags: [linux, python, ROP, x86_64, ropemporium, write-up]
 Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # ret2win

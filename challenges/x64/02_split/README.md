@@ -2,8 +2,9 @@
 Title: Ropemporium x86_64 split
 Date: 2023-06-02
 Tags: [linux, python, ROP, x86_64, ropemporium]
-Categories: [write-up]
+Categories: [tutorial]
 Author: cdpointpoint
+Draft: False
 ---
 
 # Introduction

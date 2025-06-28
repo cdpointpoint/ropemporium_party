@@ -1,7 +1,7 @@
 ---
-Title: Ropemporium x86 ret2win
-Date: 2023-06-10
-Tags: [linux, python, ROP, x86, ropemporium, write-up]
+Title: Ropemporium x86_32 ret2win
+Date: 2023-06-11
+Tags: [linux, python, ROP, x86_32, ropemporium, write-up]
 Categories: [tutorial]
 Author: cdpointpoint
 ---
