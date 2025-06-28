@@ -403,7 +403,7 @@ ra n'est pas mis à jour et au ret de ret2win on reboucle.
     0x00400a6c <+108>:	nop
     End of assembler dump.
 
-Si on saute plutôt sur j'adresse `0x00400a08`
+Si on saute plutôt sur l'adresse `0x00400a08`
 
     0x00400a00 <+0>:	addiu	sp,sp,-32
     0x00400a04 <+4>:	sw	ra,28(sp)

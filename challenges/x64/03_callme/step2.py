@@ -3,11 +3,10 @@
 from pwn import *
 import time
 
-# step 2 :  
+# step 2 : call callme_tree with de good parameters 
 # break to ret in pwnme function
 gs='''
 b *pwnme+89
-c
 '''
 
 # Set up pwntools for the correct architecture

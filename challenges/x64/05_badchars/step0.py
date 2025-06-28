@@ -5,7 +5,7 @@ import time
 import sys
 
 # Naive attack like write4 technic
-# break apres le read dans pwnme
+# break after the read in pwnme
 gs='''
 b *pwnme+268
 c

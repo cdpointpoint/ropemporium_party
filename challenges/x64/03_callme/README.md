@@ -93,7 +93,8 @@ void callme_one(long param_1,long param_2,long param_3)
 }
 ```
 
-Call_me one teste les 3 paramètres attendus puis met à jour une variable globale : g_buf.
+Call_me one teste les 3 paramètres attendus puis met à jour une variable globale : g_buf
+avec le contenu du fichier encrypted_flag.txt.
 
 ```C
 void callme_two(long param_1,long param_2,long param_3)
@@ -120,7 +121,9 @@ void callme_two(long param_1,long param_2,long param_3)
   exit(1);
 }
 
-void ls(long param_1,long param_2,long param_3)
+callme_two xor la variable globale g_buf avec le contenu de key1.dat
+
+void callme_three(long param_1,long param_2,long param_3)
 
 {
   int iVar1;
@@ -148,7 +151,7 @@ void ls(long param_1,long param_2,long param_3)
 }
 ```
 
-callme_three vérifie les paramètres ainsi que l'état final de la variable globale
+callme_three finalise le dechiffrement du flag avec le contenu du fichier key2.dat puis les 3 parametres.
 
 ```sh
 Dump of assembler code for function callme_two:

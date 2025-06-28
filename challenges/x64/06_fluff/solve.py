@@ -41,6 +41,7 @@ offset=0x28
 # Set up pwntools for the correct architecture
 elf =  ELF('fluff')
 context.binary=elf
+context(terminal=['tmux', 'split-window', '-h'])
 
 print_file=elf.plt['print_file']
 

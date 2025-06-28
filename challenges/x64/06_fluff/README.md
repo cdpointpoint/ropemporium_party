@@ -235,7 +235,7 @@ Follow it in gdb
 
 With those 3 gadgets we can write successively each character of our string.
 
-We have to find an adress of a byte containing each one of them.
+We have to find an address of a byte containing each one of them.
 For that we can use radare2 and for example to find a 'f':
 
         [0x00400520]> / f
@@ -275,7 +275,7 @@ To control `rbx` we can find this gadget:
 
 or the bextr gadget.
 
-Se first is simple but will use 6 pop, 7 entries on the ropchaine
+The first is simple but will use 6 pop, 7 entries on the ropchaine
 
 The second more complexe but use 3 entires.
 

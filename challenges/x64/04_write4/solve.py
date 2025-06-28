@@ -26,7 +26,7 @@ write_r14=0x400628
 # pop rdi ; ret
 pop_rdi = 0x400693
 
-# Build a ROP chaine to write en message in a given address
+# Build a ROP chaine to write a message in a given address
 # Dont add a final zero 
 def w_write(addr, data):
     r=b""
